@@ -21,8 +21,6 @@ bool init(const uint size, const char * title);
 //Initializes matrices and clear color
 bool initGL();
 
-void render();
-
 void close();
 
 int main(int argc, char** argv) {
@@ -54,7 +52,7 @@ int main(int argc, char** argv) {
 	//Start up SDL and create window
 	if(!init(size, title)) {
 		printf("Failed to initialize!\n");
-	} else  {
+	} else {
 		//Main loop flag
 		bool quit = false;
 
@@ -63,6 +61,11 @@ int main(int argc, char** argv) {
 
 		//Enable text input
 		SDL_StartTextInput();
+		Array_2D<uint32_t> circle_80 = gen_circle_bitmap(80, size);
+		uint32_t texture_80, texture_81;
+		glGenTextures(1, &texture_80);
+		glGenTextures(1, &texture_81);
+		Array_2D<uint32_t> circle_81 = gen_circle_bitmap(81, size);
 
 		//While application is running
 		while(!quit) {
@@ -78,6 +81,8 @@ int main(int argc, char** argv) {
 				}
 			}
 			ising.draw();
+			draw_circle_test(circle_80, size, texture_80);
+			draw_circle_test(circle_81, size, texture_81);
 			//Update screen
 			SDL_GL_SwapWindow(gWindow);
 		}
@@ -176,6 +181,7 @@ bool initGL() {
 		success = false;
 	}
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
 
 	return success;

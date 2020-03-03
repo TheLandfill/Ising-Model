@@ -84,7 +84,7 @@ void Ising_2D::draw() {
 	glEnd();
 	GLenum err;
 	while((err = glGetError()) != GL_NO_ERROR) {
-	  printf("Error: %x\n", err);
+		printf("Error: %x\n", err);
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
