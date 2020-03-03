@@ -15,6 +15,18 @@ uint32_t gen_rand_u_int(uint32_t* seed, uint32_t max_element) {
 	return ((double)x / (uint32_t)(-1)) * max_element;
 }
 
+Coordinates Coordinates::operator+(const Coordinates a) {
+	short new_x = x + a.x;
+	short new_y = y + a.y;
+	return {new_x, new_y};
+}
+
+Coordinates Coordinates::operator+=(const Coordinates a){
+	x += a.x;
+	y += a.y;
+	return *this;
+}
+
 std::vector<Coordinates> gen_circle_pixels(short radius) {
     short x = radius;
     short y = 0;
@@ -43,14 +55,14 @@ std::vector<Coordinates> gen_circle_pixels(short radius) {
 	return offset_list;
 }
 
-Array_2D<uint32_t> gen_circle_bitmap(short radius, short size) {
+Array_2D<uint32_t> gen_circle_bitmap(short radius, short size, Coordinates center) {
 	Array_2D<uint32_t> table(size, size, 0x00000000);
 	//uint32_t colors[] = { 0xA8A7A7FF, 0xCC527AFF, 0xE8175DFF, 0x474747FF, 0x363636FF };
 	uint32_t colors[] = { 0xFF0000FF, 0x0000FFFF };
 	const uint32_t num_colors = sizeof(colors) / sizeof(colors[0]);
 	std::vector<Coordinates> coords = gen_circle_pixels(radius);
 	for (size_t i = 0; i < coords.size(); i++) {
-		Coordinates& coord = coords[i];
+		Coordinates coord = coords[i] + center;
 		table.at((coord.x + size) % size, (coord.y + size) % size) = colors[radius % num_colors];
 	}
 	return table;

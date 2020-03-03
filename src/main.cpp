@@ -61,11 +61,16 @@ int main(int argc, char** argv) {
 
 		//Enable text input
 		SDL_StartTextInput();
-		Array_2D<uint32_t> circle_80 = gen_circle_bitmap(80, size);
+		#ifdef CIRCLE_TESTS
 		uint32_t texture_80, texture_81;
+		Coordinates center(size / 2, size / 2);
+		Array_2D<uint32_t> circle_80 = gen_circle_bitmap(80, size, center);
 		glGenTextures(1, &texture_80);
 		glGenTextures(1, &texture_81);
-		Array_2D<uint32_t> circle_81 = gen_circle_bitmap(81, size);
+		Array_2D<uint32_t> circle_81 = gen_circle_bitmap(81, size, center);
+		#endif
+
+		ising.draw();
 
 		//While application is running
 		while(!quit) {
@@ -81,8 +86,10 @@ int main(int argc, char** argv) {
 				}
 			}
 			ising.draw();
+			#ifdef CIRCLE_TESTS
 			draw_circle_test(circle_80, size, texture_80);
 			draw_circle_test(circle_81, size, texture_81);
+			#endif
 			//Update screen
 			SDL_GL_SwapWindow(gWindow);
 		}

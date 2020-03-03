@@ -34,7 +34,7 @@ RELEASE_LINKER_FLAGS := -Wl,--gc-sections
 RELEASE_MACROS :=
 
 # ----- Debug -----------------------------------------------------------------
-DEBUG_FLAGS := -O0 -g
+DEBUG_FLAGS := -O0 -g -DCIRCLE_TESTS
 DEBUG_MACROS :=
 
 
