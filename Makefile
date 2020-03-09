@@ -29,7 +29,7 @@ DEPENDENCY_GENERATION_FLAGS := -MMD -MP
 # ----- Release ---------------------------------------------------------------
 UNUSED_CODE_COMPILER_FLAGS := -ffunction-sections -fdata-sections -flto
 OPTIMIZATION_LEVEL := -O3
-RELEASE_FLAGS := $(OPTIMIZATION_LEVEL) $(UNUSED_CODE_COMPILER_FLAGS)
+RELEASE_FLAGS := $(OPTIMIZATION_LEVEL) $(UNUSED_CODE_COMPILER_FLAGS) -fopenmp
 RELEASE_LINKER_FLAGS := -Wl,--gc-sections
 RELEASE_MACROS :=
 

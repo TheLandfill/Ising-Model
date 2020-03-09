@@ -46,7 +46,6 @@ namespace ising {
 	std::vector<Coordinates> gen_circle_pixels(short radius);
 	Array_2D<uint32_t> gen_circle_bitmap(short radius, short size, Coordinates center = {0, 0});
 	void draw_circle_test(Array_2D<uint32_t>& table, short size, uint32_t texture);
-
 }
 
 #endif

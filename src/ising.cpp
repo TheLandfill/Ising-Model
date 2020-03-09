@@ -89,4 +89,32 @@ void Ising_2D::draw() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+float Ising_2D::correlation(const std::vector<Coordinates>& circle_points) {
+	float average = 0;
+	float pairwise = 0;
+	for (uint32_t i = 0; i < size; i++) {
+		for (uint32_t j = 0; j < size; j++) {
+			average += at(i, j);
+			for (size_t k = 0; k < circle_points.size(); k++) {
+				const Coordinates& c = circle_points[k];
+				pairwise += at(i, j) * at((i + c.x + size) % size, (j + c.y + size) % size);
+			}
+		}
+	}
+	const float DOUBLE_COUNTING = 2.f;
+	const float NUM_POINTS = size * size;
+	const float NUM_CIRCLE = circle_points.size();
+	average /= NUM_POINTS;
+	pairwise /= DOUBLE_COUNTING * NUM_POINTS * NUM_CIRCLE;
+	return pairwise - average * average;
+}
+
+double Ising_2D::get_temperature() const {
+	return temperature;
+}
+
+uint32_t Ising_2D::get_size() const {
+	return size;
+}
+
 }

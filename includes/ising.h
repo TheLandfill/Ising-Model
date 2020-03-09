@@ -22,6 +22,9 @@ namespace ising {
 		char & at(uint32_t x, uint32_t y);
 		void handle_keys(unsigned char key, int x, int y);
 		void draw();
+		float correlation(const std::vector<Coordinates>& circle_points);
+		double get_temperature() const;
+		uint32_t get_size() const;
 	};
 }
 

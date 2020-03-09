@@ -6,6 +6,7 @@
 #include <GL/glu.h>
 #include <cstdio>
 #include <ctime>
+#include <fstream>
 using namespace ising;
 typedef unsigned int uint;
 
@@ -17,6 +18,8 @@ SDL_GLContext gContext;
 
 //Starts up SDL, creates window, and initializes OpenGL
 bool init(const uint size, const char * title);
+void display_model(Ising_2D& ising, const char * title);
+void no_display_model(Ising_2D& ising, const char * title, const uint num_iterations);
 
 //Initializes matrices and clear color
 bool initGL();
@@ -27,6 +30,7 @@ int main(int argc, char** argv) {
 	bool help = false;
 	uint size = 512;
 	double temperature = 0.5;
+	int num_iterations = -1;
 	uint seed = time(NULL);
 	cli::Parser p;
 	char header[] = "A program to run the metropolis algorithm on an ising model.";
@@ -37,6 +41,7 @@ int main(int argc, char** argv) {
 	p.arg(temperature, { "T", "temperature" }, "Set the temperature for the simulation.");
 	p.arg(size, { "s", "size" }, "Set the size of the ising model square.");
 	p.arg(seed, { "seed" }, "Set an initial seed for the random number generation.");
+	p.arg(num_iterations, { "n", "num" }, "Turns off display and write correlation data to a file in data/.");
 	p.value(help, { "h", "help" }, true, "Prints the help message and exits.");
 	p.generate_help(argv[0]);
 	p.parse(argc, argv);
@@ -49,7 +54,20 @@ int main(int argc, char** argv) {
 	const int buff_sz = 1024;
 	char title[buff_sz];
 	snprintf(title, buff_sz, "Temp: %f K | Size: %u | Seed: %u", temperature, size, seed);
+	if (num_iterations <= 0) {
+		puts("Display.");
+		display_model(ising, title);
+	} else {
+		puts("No display.");
+		printf("num_iterations: %u\n", num_iterations);
+		no_display_model(ising, title, num_iterations);
+	}
+	return 0;
+}
+
+void display_model(Ising_2D& ising, const char * title) {
 	//Start up SDL and create window
+	uint32_t size = ising.get_size();
 	if(!init(size, title)) {
 		printf("Failed to initialize!\n");
 	} else {
@@ -64,8 +82,8 @@ int main(int argc, char** argv) {
 		#ifdef CIRCLE_TESTS
 		uint32_t texture_80, texture_81;
 		Coordinates center(size / 2, size / 2);
-		Array_2D<uint32_t> circle_80 = gen_circle_bitmap(80, size, center);
 		glGenTextures(1, &texture_80);
+		Array_2D<uint32_t> circle_80 = gen_circle_bitmap(80, size, center);
 		glGenTextures(1, &texture_81);
 		Array_2D<uint32_t> circle_81 = gen_circle_bitmap(81, size, center);
 		#endif
@@ -100,8 +118,42 @@ int main(int argc, char** argv) {
 
 	//Free resources and close SDL
 	close();
+}
 
-	return 0;
+void no_display_model(Ising_2D& ising, const char * title, const uint num_iterations) {
+	const int buff_sz = 1024;
+	std::ofstream writer;
+	char outfile[buff_sz];
+	double temperature = ising.get_temperature();
+	uint32_t size = ising.get_size();
+	snprintf(outfile, buff_sz, "../data/T-%f.data", temperature);
+	writer.open(outfile);
+	if (!writer.is_open()) {
+		printf("ERROR: %s could not be opened for writing!\n", outfile);
+		return;
+	}
+	writer << title << "\n";
+
+	std::vector< std::vector<Coordinates> > circle_points;
+	circle_points.reserve(size / 2 + 1);
+	for (unsigned short radius = 1; radius <= size / 2; radius++) {
+		circle_points.push_back(gen_circle_pixels(radius));
+	}
+	std::vector<std::string> lines = std::vector<std::string>(size / 2);
+	for (uint32_t iteration = 0; iteration < num_iterations; iteration++) {
+		ising.handle_keys('n', 0, 0);
+		#pragma omp parallel for
+		for (uint32_t radius = 1; radius <= size / 2; radius++) {
+			lines[radius - 1] = std::to_string(iteration) + ","
+				+ std::to_string(radius) + ","
+				+ std::to_string(ising.correlation(circle_points[radius - 1]));
+			//writer << iteration << "," << radius << "," << ising.correlation(circle_points[radius - 1]) << "\n";
+		}
+		for (size_t i = 0; i < lines.size(); i++) {
+			writer << lines[i] << "\n";
+		}
+	}
+	writer.close();
 }
 
 bool init(const uint size, const char * title) {
