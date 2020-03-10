@@ -126,7 +126,7 @@ void no_display_model(Ising_2D& ising, const char * title, const uint num_iterat
 	char outfile[buff_sz];
 	double temperature = ising.get_temperature();
 	uint32_t size = ising.get_size();
-	snprintf(outfile, buff_sz, "../data/T-%f.data", temperature);
+	snprintf(outfile, buff_sz, "../data/T-%e.data", temperature);
 	writer.open(outfile);
 	if (!writer.is_open()) {
 		printf("ERROR: %s could not be opened for writing!\n", outfile);
